@@ -1,0 +1,182 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>International Bird Rescue</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+cur_img_id = 0;
+var loading_text;
+var title;
+var subtitle;
+var cur_img;
+var game_data;
+var cur_graphics;
+
+class Main extends Phaser.Scene
+{
+    constructor()
+    {
+        super(
+            {
+                pack: {
+                    'files': [{type: 'json', key: 'game_data', url: 'assets/game_data.json'}]
+                }
+            }
+        );
+    }
+
+    update_image()
+    {
+        cur_img.setTexture(game_data.images[cur_img_id].name);
+
+        this.fit_image(cur_img);
+
+        cur_graphics.clear();
+        // cur_graphics.lineStyle(5, 0xff00ff, 1.0);
+        cur_graphics.fillStyle(0xff0055, 0.4);
+        if(game_data.images[cur_img_id]["anomaly_polygon"] != undefined)
+        {
+            cur_graphics.fillPoints(game_data.images[cur_img_id].poly.points, true);
+            //console.log(game_data.images[cur_img_id].poly);
+        }
+    }
+
+    fit_image(img)
+    {
+        img.displayWidth = config.width;
+        img.scaleY = img.scaleX;
+        if(img.displayHeight > config.height)
+        {
+            img.displayHeight = config.height;
+            img.scaleX = img.scaleY;
+        }
+    }
+
+    fit_title()
+    {
+        title.x = cur_img.x;
+        title.y = cur_img.y - cur_img.displayHeight * 0.5 + 2;
+
+        subtitle.x = cur_img.x;
+        subtitle.y = cur_img.y - cur_img.displayHeight * 0.5 + 58;
+
+        // title.displayWidth = config.width * 0.75;
+        // title.scaleY = title.scaleX;
+    }
+
+    preload ()
+    {   
+        loading_text = this.add.text(0, 0, 'Loading Assets...', { fontSize: '32px', fill: '#fff' });
+        game_data = this.cache.json.get('game_data');
+            
+        for (let i = 0; i < game_data.images.length; i++)
+        {
+            var image_name = game_data.images[i].name;
+            this.load.image(image_name, 'assets/' + image_name + '.jpg');
+        }
+
+    }
+
+    create ()
+    {
+
+        loading_text.visible = false;
+        cur_img = this.add.image(config.width * 0.5, config.height * 0.5, game_data.images[cur_img_id].name).setInteractive();
+        
+        title = this.add.text(0, 0, 'What\'s wrong with the bird(s)?', 
+        { 
+            fontSize: '48px',
+            fill: '#fff',
+            fontFamily: "Tahoma",
+         }).setOrigin(0.5, 0.0)
+         //  title.setStroke('#de77ae', 16);
+         //  title.setShadow(2, 2, '#333333', 2, false, true);
+         title.setBackgroundColor("rgba(0,0,0,0.5)");
+
+        subtitle = this.add.text(0, 0, '(click on the image, then click submit)', 
+        { 
+            fontSize: '24px',
+            fill: '#fff',
+            fontFamily: "Tahoma",
+        }).setOrigin(0.5, 0.0);
+
+        for (let i = 0; i < game_data.images.length; i++)
+        {
+            if(game_data.images[i]["anomaly_polygon"] != undefined)
+            {
+                game_data.images[i].poly = new Phaser.Geom.Polygon();
+                let arr = [];
+
+                for(let j = 0; j < game_data.images[i]["anomaly_polygon"].length; j++)
+                {
+                    arr.push(new Phaser.Geom.Point(
+                        game_data.images[i]["anomaly_polygon"][j][0],
+                        game_data.images[i]["anomaly_polygon"][j][1]));
+                }
+                // console.log(arr);
+
+                game_data.images[i].poly.setTo(arr);
+            }
+        }
+
+        cur_graphics = this.add.graphics(0, 0);
+
+
+         
+        subtitle.setBackgroundColor("rgba(0,0,0,0.5)");
+        
+        this.update_image();
+        this.fit_title();
+
+        cur_img.inputEnabled = true;
+
+        cur_img.on('pointerup', function(pointer)
+        {
+            var rel_x = pointer.x - cur_img.x + cur_img.displayWidth  * 0.5;
+            var rel_y = pointer.y - cur_img.y + cur_img.displayHeight * 0.5;
+            if(pointer.x > (config.width * 0.5))
+            {
+                cur_img_id = (cur_img_id + 1) % game_data.images.length;
+            }
+            else
+            {
+                cur_img_id = (cur_img_id + game_data.images.length - 1) % game_data.images.length;
+            }
+
+            this.update_image();
+
+            this.fit_title();
+        }, this);
+
+    }
+
+    update ()
+    {
+
+    }
+}
+
+
+var config = {
+    type: Phaser.AUTO,
+    backgroundColor: '000033',
+    width: window.innerWidth,
+    height: window.innerHeight,
+    scene: Main
+};
+var game = new Phaser.Game(config);
+
+</script>
+
+</body>
+</html>
