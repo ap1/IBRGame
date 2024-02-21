@@ -1,0 +1,62 @@
+{
+    "images":
+    [
+        {
+            "name": "image1A", 
+            "anomaly_polygon": 
+            [
+                [ 878, 570],
+                [1008, 570],
+                [1008, 677],
+                [ 878, 677]
+            ]
+        },
+        {
+            "name": "image2A", 
+            "anomaly_polygon": 
+            [
+                [619, 426],
+                [652, 426],
+                [652, 567],
+                [619, 567]
+            ]
+        },
+        {
+            "name": "image3A"
+        },
+        {
+            "name": "image4A",
+            "anomaly_polygon":
+            [
+                [891, 333],
+                [954, 333],
+                [854, 759],
+                [891, 759]
+            ]
+        },
+        {
+            "name": "image5A"
+        },
+        {
+            "name": "image6A"
+        },
+        {
+            "name": "image7A"
+        },
+        {
+            "name": "image8A"
+        },
+        {
+            "name": "image9A"
+        },
+        {
+            "name": "image10C"
+        },
+        {
+            "name": "image11C"
+        },
+        {
+            "name": "image12C"
+        }
+    ]
+}
