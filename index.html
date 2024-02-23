@@ -42,12 +42,36 @@ class Main extends Phaser.Scene
         this.fit_image(cur_img);
 
         cur_graphics.clear();
-        // cur_graphics.lineStyle(5, 0xff00ff, 1.0);
-        cur_graphics.fillStyle(0xff0055, 0.4);
-        if(game_data.images[cur_img_id]["anomaly_polygon"] != undefined)
+        cur_graphics.removeInteractive();
+        if("anomaly_polygon" in game_data.images[cur_img_id])
         {
-            cur_graphics.fillPoints(game_data.images[cur_img_id].poly.points, true);
-            //console.log(game_data.images[cur_img_id].poly);
+            // console.log(game_data.images[cur_img_id]);
+            var poly = new Phaser.Geom.Polygon();
+            let arr = [];
+            
+            for(let j = 0; j < game_data.images[cur_img_id]["anomaly_polygon"].length; j++)
+            {
+                arr.push(new Phaser.Geom.Point(
+                    cur_img.x - cur_img.displayWidth*0.5 + cur_img.scaleX * game_data.images[cur_img_id]["anomaly_polygon"][j][0],
+                    cur_img.y - cur_img.displayHeight*0.5 + cur_img.scaleY * game_data.images[cur_img_id]["anomaly_polygon"][j][1]));
+            }
+            poly.setTo(arr);
+            //cur_graphics.fillPoints(poly.points, true);
+
+            // Make the polygon interactive
+            cur_graphics.setInteractive(poly, Phaser.Geom.Polygon.Contains);
+
+            // Add a click event listener
+            cur_graphics.on('pointerup', function () {
+                cur_graphics.clear();
+                cur_graphics.removeInteractive();
+                cur_graphics.fillStyle(0xff0055, 0.4);
+                cur_graphics.fillPoints(poly.points, true);
+            });
+
+            function onClick(target, pointer){
+            console.log("hooray");
+            }
         }
     }
 
@@ -110,25 +134,6 @@ class Main extends Phaser.Scene
             fontFamily: "Tahoma",
         }).setOrigin(0.5, 0.0);
 
-        for (let i = 0; i < game_data.images.length; i++)
-        {
-            if(game_data.images[i]["anomaly_polygon"] != undefined)
-            {
-                game_data.images[i].poly = new Phaser.Geom.Polygon();
-                let arr = [];
-
-                for(let j = 0; j < game_data.images[i]["anomaly_polygon"].length; j++)
-                {
-                    arr.push(new Phaser.Geom.Point(
-                        game_data.images[i]["anomaly_polygon"][j][0],
-                        game_data.images[i]["anomaly_polygon"][j][1]));
-                }
-                // console.log(arr);
-
-                game_data.images[i].poly.setTo(arr);
-            }
-        }
-
         cur_graphics = this.add.graphics(0, 0);
 
 
@@ -144,11 +149,11 @@ class Main extends Phaser.Scene
         {
             var rel_x = pointer.x - cur_img.x + cur_img.displayWidth  * 0.5;
             var rel_y = pointer.y - cur_img.y + cur_img.displayHeight * 0.5;
-            if(pointer.x > (config.width * 0.5))
+            if(pointer.x > (config.width * 0.75))
             {
                 cur_img_id = (cur_img_id + 1) % game_data.images.length;
             }
-            else
+            else if (pointer.x < (config.width * 0.25))
             {
                 cur_img_id = (cur_img_id + game_data.images.length - 1) % game_data.images.length;
             }
