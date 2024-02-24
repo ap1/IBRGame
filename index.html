@@ -21,6 +21,7 @@ var subtitle;
 var cur_img;
 var game_data;
 var cur_graphics;
+var output_msg;
 
 class Main extends Phaser.Scene
 {
@@ -43,6 +44,7 @@ class Main extends Phaser.Scene
 
         cur_graphics.clear();
         cur_graphics.removeInteractive();
+        output_msg.visible = false;
         if("anomaly_polygon" in game_data.images[cur_img_id])
         {
             // console.log(game_data.images[cur_img_id]);
@@ -67,11 +69,12 @@ class Main extends Phaser.Scene
                 cur_graphics.removeInteractive();
                 cur_graphics.fillStyle(0xff0055, 0.4);
                 cur_graphics.fillPoints(poly.points, true);
+
+                output_msg.visible = true;
+                // output_msg.x = poly.points[0].x;
+                // output_msg.y = poly.points[0].y + 60;
             });
 
-            function onClick(target, pointer){
-            console.log("hooray");
-            }
         }
     }
 
@@ -96,6 +99,9 @@ class Main extends Phaser.Scene
 
         // title.displayWidth = config.width * 0.75;
         // title.scaleY = title.scaleX;
+
+        output_msg.x = cur_img.x;
+        output_msg.y = cur_img.y + cur_img.displayHeight * 0.5 - 200;
     }
 
     preload ()
@@ -117,7 +123,7 @@ class Main extends Phaser.Scene
         loading_text.visible = false;
         cur_img = this.add.image(config.width * 0.5, config.height * 0.5, game_data.images[cur_img_id].name).setInteractive();
         
-        title = this.add.text(0, 0, 'What\'s wrong with the bird(s)?', 
+        title = this.add.text(0, 0, 'Is this bird in distress?', 
         { 
             fontSize: '48px',
             fill: '#fff',
@@ -127,18 +133,28 @@ class Main extends Phaser.Scene
          //  title.setShadow(2, 2, '#333333', 2, false, true);
          title.setBackgroundColor("rgba(0,0,0,0.5)");
 
-        subtitle = this.add.text(0, 0, '(click on the image, then click submit)', 
+        subtitle = this.add.text(0, 0, '(click where you see something wrong)', 
         { 
             fontSize: '24px',
             fill: '#fff',
             fontFamily: "Tahoma",
         }).setOrigin(0.5, 0.0);
+        subtitle.setBackgroundColor("rgba(0,0,0,0.5)");
+
+        output_msg = this.add.text(0, 0, 'That\'s correct!', 
+        { 
+            fontSize: '48px',
+            fill: '#fff',
+            fontFamily: "Tahoma",
+        }).setOrigin(0.5, 0.0);
+
+        output_msg.visible = false;
+        output_msg.setBackgroundColor("rgba(0,0,0,0.5)");
 
         cur_graphics = this.add.graphics(0, 0);
 
 
          
-        subtitle.setBackgroundColor("rgba(0,0,0,0.5)");
         
         this.update_image();
         this.fit_title();

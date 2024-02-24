@@ -22,9 +22,6 @@
             ]
         },
         {
-            "name": "image3A"
-        },
-        {
             "name": "image4A",
             "anomaly_polygon":
             [
@@ -33,6 +30,9 @@
                 [954, 759],
                 [891, 759]
             ]
+        },
+        {
+            "name": "image3A"
         },
         {
             "name": "image5A"
